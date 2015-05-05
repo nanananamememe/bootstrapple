@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Bootstrap, from Twitter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="asset/origin/bootstrap.min.css" rel="stylesheet" class="btsp" />
+    <link href="asset/origin/bootstrap-responsive.css" rel="stylesheet" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <style type="text/css">
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+        .invisibleMan {
+            opacity: 0.3;
+            filter:Alpha(opacity=30);
+        }
+        @media (min-width: 980px) {
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        }
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+        .eventer {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+            z-index: 1100;
+        }
+        #container {
+            position: relative;
+        }
+        #container div[class*="row"] {
+            margin-bottom: 1px;
+        }
+        #container div[class*="row"],
+        #container div[class*="span"] {
+            background-color: rgba(0,0,0,0.1);
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #container #tit {
+            background-color: transparent;
+        }
+        #editIcon i {
+            cursor: pointer;
+        }
+    </style>
+    <script type="text/javascript" src="./asset/js/bootstrap.js"></script>
+    <script>
+        var __t;
+        var __m;
+        $(function(){
+            $('.templateElement li').bind('click', function(){
+                var nm = $(this).children('a').attr('name');
+                var u = 'asset/'+ nm +'/bootstrap.min.css';
+                $.ajax({url:u,success:function(){
+                    var l = $('<link />').attr({'rel':'stylesheet','href':u});
+                    $('head').prepend( l );
+                    $('head').find('link.btsp').remove();
+                    l.addClass('btsp');
+                    $('.brand').find('span').html( nm );
+                }});
+            });
+            $('.dropdown-toggle').dropdown();
+            $('.spanElement li').bind('mousedown',function(){
+                $(this).closest('ul').addClass('invisibleMan');
+                __t = $('<div></div>').addClass('open').append(
+                    $('<ul></ul>').addClass('dropdown-menu').append(
+                        $('<li></li>').append(
+                            $('<a></a>').html( $(this).children('a').html() )
+                        )
+                    )
+                );
+                __t.css({
+                    'position':'absolute',
+                    'left': parseInt(__m.clientX) - 10,
+                    'top': parseInt(__m.clientY) - 10
+
+                });
+                var _e = $('<div></div>').addClass('eventer')
+                $('body').append(_e);
+                $('body').append(__t);
+            })
+
+            $(document).bind('mousemove',function(e){
+                __m = e;
+                if (__t) {
+                    $(__t).css({
+                        'position':'absolute',
+                        'left': parseInt(e.clientX) - 10,
+                        'top': parseInt(e.clientY) - 10
+                    });
+                }
+            });
+            $(document).bind('mouseup',function(){
+                if (__t) {
+                    var _nm = $(__t).find('a').html();
+                    _nm = _nm||'';
+                    var _elm = $('<div></div>').addClass(_nm).html(_nm);
+                    _elm.bind('mousedown',function(e){
+                        __t = $(this.outerHTML);
+                        $(this).css('display','none');
+                        __t.css({
+                            'position':'absolute',
+                            'left': parseInt(__m.clientX) ,
+                            'top': parseInt(__m.clientY) ,
+                            'width': 100,
+                            'height': 20,
+                            'background-color':'rgba(0,0,0,0.1)'
+                        });
+                        var _e = $('<div></div>').addClass('eventer');
+                        $('body').append(_e);
+                        $('body').append(__t);
+                        return false;
+                    });
+                    $('.eventer').remove();
+                    $(__t).remove();
+                    $('.invisibleMan').removeClass('invisibleMan');
+                    if (_nm.indexOf('span',0) > -1) {
+                        var fr = looperRow('#container');
+                        if(fr){
+                            var spnNum = parseInt($(fr).attr('spnNum'))||0;
+                            var aftSpnNum = spnNum + parseInt(_nm.substr(4));
+                            if (spnNum == 12 || aftSpnNum > 12 ) {
+                                var _spn = $('<div></div>').addClass('container alert alert-error');
+                                setTimeout(function(){_spn.fadeOut(5000)},5000);
+                                $('#container').before(_spn.append(
+                                    $('<button></button>').addClass('close').attr('data-dismiss','alert').html('&times;')
+                                ).append(
+                                    $('<strong></strong>').html('Over Span Nums!!')
+                                ));
+                            } else {
+                                if ($(fr).children('div').length === 0) {
+                                    $(fr).html('');
+                                }
+                                $(fr).attr('spnNum',aftSpnNum);
+                                $(fr).append(_elm);
+                            }
+                        }
+                    } else if (_nm.indexOf('row',0) > -1) {
+                        if ($('#container').children('[class*="row"]').length === 0 || parseInt($('#container').children('div:last').offset().top) + parseInt($('#container').children('div:last').outerHeight(true)) <= __m.clientY) {
+                                $('#container').append(_elm);
+                        } else if (parseInt($('#container').children('div:first').offset().top) >= __m.clientY) {
+                                $('#container').children('div:first').before(_elm);
+                        } else {
+                            var fr = looperRow('#container');
+                            var fs = looperSpn(fr);
+                            if (fs) {
+                                if ($(fs).children('div').length === 0) {
+                                    $(fs).html('');
+                                }
+                                $(fs).append(_elm);
+                            } else {
+                                $(fr).after(_elm);
+                            }
+                            _elm = null;
+                        }
+                    }
+                    __t = null;
+                }
+            });
+            function looperRow (_t) {
+                var _rtn;
+                $(_t).children('[class*="row"]').each(function(k,v){
+                    if (parseInt($(this).offset().top) < __m.clientY && ($(this).next('div').length === 0 || parseInt($(this).next('div').offset().top) > __m.clientY )) {
+                        _rtn = this;
+                    }
+                });
+                return _rtn;
+            }
+            function looperSpn (_t) {
+                var _rtn;
+                $(_t).children('[class*="span"]').each(function(_k, _v){
+                    if (parseInt($(this).offset().left) < __m.clientX && parseInt($(this).offset().left) + parseInt($(this).outerWidth()) > __m.clientX ) {
+                        _rtn = this;
+                    }
+                });
+                return _rtn;
+            }
+        });
+    </script>
+  </head>
+
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Bootstrapple[<span>Origin</span>]</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="dropdown templateElement">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Template <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#" name="Amelia">Amelia</a></li>
+                  <li><a href="#" name="Cerulean">Cerulean</a></li>
+                  <li><a href="#" name="Cosmo">Cosmo</a></li>
+                  <li><a href="#" name="Cyborg">Cyborg</a></li>
+                  <li><a href="#" name="Journal">Journal</a></li>
+                  <li><a href="#" name="Readable">Readable</a></li>
+                  <li><a href="#" name="Simplex">Simplex</a></li>
+                  <li><a href="#" name="Slate">Slate</a></li>
+                  <li><a href="#" name="Spacelab">Spacelab</a></li>
+                  <li><a href="#" name="Spruce">Spruce</a></li>
+                  <li><a href="#" name="Superhero">Superhero</a></li>
+                  <li><a href="#" name="United">United</a></li>
+                </ul>
+              </li>
+
+              <li class="dropdown spanElement">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Row <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">row</a></li>
+                  <li><a href="#">row-fluid</a></li>
+                </ul>
+              </li>
+
+
+              <li class="dropdown spanElement">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Span <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">span1</a></li>
+                  <li><a href="#">span2</a></li>
+                  <li><a href="#">span3</a></li>
+                  <li><a href="#">span4</a></li>
+                  <li><a href="#">span5</a></li>
+                  <li><a href="#">span6</a></li>
+                  <li><a href="#">span7</a></li>
+                  <li><a href="#">span8</a></li>
+                  <li><a href="#">span9</a></li>
+                  <li><a href="#">span10</a></li>
+                  <li><a href="#">span11</a></li>
+                  <li><a href="#">span12</a></li>
+                </ul>
+              </li>
+
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+        <div id="editIcon" class="pull-right">
+            <i class="icon-pencil"></i>
+            <i class="icon-trash"></i>
+        </div>
+    </div>
+    <div id="container" class="container well">
+        [Drop Hear!]
+    </div>
+    <div class="container-fluid">
+        <hr>
+        <footer>
+            <p>c Company 2013</p>
+        </footer>
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  
+
+
+
+</body></html>
